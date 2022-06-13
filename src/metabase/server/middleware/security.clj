@@ -116,24 +116,23 @@
    (str/join
     (for [[k vs] {:default-src  ["'none'"]
                   :script-src   (concat
-                                 ["'self'"
-                                  "https://maps.google.com"
-                                  "https://accounts.google.com"
-                                  (when (public-settings/anon-tracking-enabled)
-                                    "https://www.google-analytics.com")
-                                  ;; for webpack hot reloading
-                                  (when config/is-dev?
-                                    "http://localhost:8080")
-                                  ;; for react dev tools to work in Firefox until resolution of
-                                  ;; https://github.com/facebook/react/issues/17997
-                                  (when config/is-dev?
-                                    "'unsafe-inline'")]
-                                 ;; CLJS REPL
-                                 (when config/is-dev?
-                                   ["'unsafe-eval'"
-                                    "http://localhost:9630"])
-                                 (when-not config/is-dev?
-                                   (map (partial format "'sha256-%s'") inline-js-hashes)))
+                                  ["'self'"
+                                   "'unsafe-eval'" ; TODO - we keep working towards removing this entirely
+                                   "https://maps.google.com"
+                                   "https://apis.google.com"
+                                   "https://*.googleapis.com"
+                                   "*.gstatic.com"
+                                   (when (public-settings/anon-tracking-enabled)
+                                     "https://www.google-analytics.com")
+                                   ;; for webpack hot reloading
+                                   (when config/is-dev?
+                                     "localhost:8080 localhost:4987")
+                                   ;; for react dev tools to work in Firefox until resolution of
+                                   ;; https://github.com/facebook/react/issues/17997
+                                   (when config/is-dev?
+                                     "'unsafe-inline'")]
+                                  (when-not config/is-dev?
+                                    (map (partial format "'sha256-%s'") inline-js-hashes)))
                   :child-src    ["'self'"
                                  "https://accounts.google.com"]
                   :style-src    ["'self'"
@@ -145,10 +144,7 @@
                                    "http://localhost:8080")
                                  ;; CLJS REPL
                                  (when config/is-dev?
-                                   "http://localhost:9630")
-                                 "https://accounts.google.com"]
-                  :frame-src    (parse-allowed-iframe-hosts (public-settings/allowed-iframe-hosts))
-                  :font-src     ["*"]
+                                   "localhost:8080 localhost:4987")]
                   :img-src      ["*"
                                  "'self' data:"]
                   :connect-src  ["'self'"
@@ -161,10 +157,7 @@
                                    (setting/get-value-of-type :string :snowplow-url))
                                  ;; Webpack dev server
                                  (when config/is-dev?
-                                   "*:8080 ws://*:8080")
-                                 ;; CLJS REPL
-                                 (when config/is-dev?
-                                   "ws://*:9630")]
+                                   "localhost:8080 ws://localhost:8080 localhost:4987")]
                   :manifest-src ["'self'"]}]
       (format "%s %s; " (name k) (str/join " " vs))))})
 

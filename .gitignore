@@ -126,3 +126,5 @@ modules/drivers/*/.lsp/*
 # jar downloader
 /jars/
 /bin/bb
+
+node_modules.nosync
